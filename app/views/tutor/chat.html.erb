@@ -1,0 +1,514 @@
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .chat-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    overflow: hidden;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-header {
+    color: white;
+    padding: 20px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .subject-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .subject-icon {
+    font-size: 2.5rem;
+    animation: bounce 2s infinite;
+  }
+
+  .subject-details h2 {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+  }
+
+  .subject-details p {
+    opacity: 0.9;
+    font-size: 0.95rem;
+  }
+
+  .back-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .back-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
+    color: white;
+    text-decoration: none;
+  }
+
+  .chat-messages {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    background: #f8f9fa;
+    position: relative;
+  }
+
+  .welcome-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    animation: fadeIn 1s ease-out;
+  }
+
+  .welcome-avatar {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    animation: pulse 2s infinite;
+  }
+
+  .welcome-text {
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+
+  .message {
+    margin-bottom: 20px;
+    animation: slideIn 0.5s ease-out;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+
+  .message.user {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .message.assistant {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .message-bubble {
+    max-width: 70%;
+    padding: 15px 20px;
+    border-radius: 20px;
+    position: relative;
+    word-wrap: break-word;
+    line-height: 1.5;
+  }
+
+  .message.user .message-bubble {
+    color: white;
+    border-bottom-right-radius: 5px;
+  }
+
+  .message.assistant .message-bubble {
+    background: white;
+    color: #333;
+    border-bottom-left-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+
+  .typing-indicator {
+    display: none;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+  }
+
+  .typing-indicator.show {
+    display: flex;
+  }
+
+  .typing-bubble {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 20px;
+    border-bottom-left-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .typing-dots {
+    display: flex;
+    gap: 3px;
+  }
+
+  .typing-dot {
+    width: 8px;
+    height: 8px;
+    background: #667eea;
+    border-radius: 50%;
+    animation: typingDot 1.4s infinite;
+  }
+
+  .typing-dot:nth-child(1) { animation-delay: 0s; }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  .chat-input-area {
+    padding: 25px 30px;
+    background: white;
+    border-top: 1px solid #eee;
+  }
+
+  .input-container {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+  }
+
+  .input-wrapper {
+    flex: 1;
+    position: relative;
+  }
+
+  .chat-input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #e1e8ed;
+    border-radius: 25px;
+    font-size: 1rem;
+    resize: none;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    max-height: 120px;
+    min-height: 50px;
+  }
+
+  .chat-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .send-btn {
+    border: none;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover {
+    transform: scale(1.1);
+  }
+
+  .send-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .quick-suggestions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+  }
+
+  .suggestion-chip {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+  }
+
+  .suggestion-chip:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  /* Subject-specific styling */
+  .math-theme .chat-header { background: linear-gradient(135deg, #667eea, #764ba2); }
+  .science-theme .chat-header { background: linear-gradient(135deg, #f093fb, #f5576c); }
+  .english-theme .chat-header { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+  .social-studies-theme .chat-header { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+  .math-theme .message.user .message-bubble { background: linear-gradient(135deg, #667eea, #764ba2); }
+  .science-theme .message.user .message-bubble { background: linear-gradient(135deg, #f093fb, #f5576c); }
+  .english-theme .message.user .message-bubble { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+  .social-studies-theme .message.user .message-bubble { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+  .math-theme .send-btn { background: linear-gradient(135deg, #667eea, #764ba2); }
+  .science-theme .send-btn { background: linear-gradient(135deg, #f093fb, #f5576c); }
+  .english-theme .send-btn { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+  .social-studies-theme .send-btn { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes typingDot {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-10px); }
+  }
+
+  @media (max-width: 768px) {
+    .chat-container {
+      height: 90vh;
+      margin: 10px;
+      border-radius: 15px;
+    }
+    
+    .chat-header {
+      padding: 15px 20px;
+    }
+    
+    .subject-details h2 {
+      font-size: 1.4rem;
+    }
+    
+    .chat-messages {
+      padding: 20px;
+    }
+    
+    .message-bubble {
+      max-width: 85%;
+    }
+  }
+</style>
+
+<%
+  subject_config = {
+    'math' => { icon: '🔢', title: 'Math Wizard', subtitle: 'Ready to solve some math mysteries?', theme: 'math-theme', suggestions: ['What are fractions?', 'How do I add numbers?', 'What is algebra?'] },
+    'science' => { icon: '🔬', title: 'Science Explorer', subtitle: 'Let\'s discover how the world works!', theme: 'science-theme', suggestions: ['Why is the sky blue?', 'How do plants grow?', 'What is gravity?'] },
+    'english' => { icon: '📝', title: 'Word Artist', subtitle: 'Time to master the art of language!', theme: 'english-theme', suggestions: ['What is a metaphor?', 'How do I write better?', 'What are adjectives?'] },
+    'social_studies' => { icon: '🌍', title: 'World Adventurer', subtitle: 'Let\'s explore history and cultures!', theme: 'social-studies-theme', suggestions: ['What is democracy?', 'Tell me about ancient Egypt', 'How do governments work?'] }
+  }
+  
+  config = subject_config[@subject] || subject_config['math']
+%>
+
+<div class="chat-container <%= config[:theme] %>">
+  <div class="chat-header">
+    <div class="subject-info">
+      <div class="subject-icon"><%= config[:icon] %></div>
+      <div class="subject-details">
+        <h2><%= config[:title] %></h2>
+        <p><%= config[:subtitle] %></p>
+      </div>
+    </div>
+    <%= link_to "← Back to Subjects", root_path, class: "back-btn" %>
+  </div>
+
+  <div class="chat-messages" id="chat-messages">
+    <div class="welcome-message">
+      <div class="welcome-avatar">🤖</div>
+      <div class="welcome-text">
+        Hi there! I'm your AI tutor and I'm super excited to help you learn! 
+        Ask me anything about <%= @subject.humanize %> and I'll explain it in a fun, easy way. 
+        What would you like to explore today?
+      </div>
+    </div>
+  </div>
+
+  <div class="typing-indicator" id="typing-indicator">
+    <div class="typing-bubble">
+      <span>AI Tutor is thinking</span>
+      <div class="typing-dots">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-input-area">
+    <div class="quick-suggestions">
+      <% config[:suggestions].each do |suggestion| %>
+        <div class="suggestion-chip" onclick="askQuestion('<%= suggestion %>')"><%= suggestion %></div>
+      <% end %>
+    </div>
+    <%= form_with url: tutor_ask_path, method: :post, local: false, id: "question-form", class: "input-container" do |form| %>
+      <%= form.hidden_field :subject, value: params[:subject] %>
+      <div class="input-wrapper">
+        <%= form.text_area :question, 
+            placeholder: "Ask me anything about #{@subject.humanize}...", 
+            class: "chat-input",
+            id: "question-input",
+            rows: 1 %>
+      </div>
+      <%= form.submit "➤", class: "send-btn", id: "send-btn" %>
+    <% end %>
+  </div>
+</div>
+
+<script>
+let messageCount = 0;
+
+function askQuestion(question) {
+  document.getElementById('question-input').value = question;
+  document.getElementById('question-form').dispatchEvent(new Event('submit'));
+}
+
+document.getElementById('question-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const question = formData.get('question');
+  
+  if (!question.trim()) return;
+  
+  // Add user message with animation
+  addMessage(question, 'user');
+  
+  // Clear input
+  document.getElementById('question-input').value = '';
+  
+  // Show typing indicator
+  showTypingIndicator();
+
+  // Send to server
+ fetch('<%= tutor_ask_path %>', {
+   method: 'POST',
+   headers: {
+     'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+   },
+   body: formData
+ })
+ .then(response => response.json())
+ .then(data => {
+   hideTypingIndicator();
+   if (data.success) {
+     addMessage(data.response, 'assistant');
+   } else {
+     addMessage('Sorry, I had trouble understanding that. Could you try asking again?', 'assistant');
+   }
+ })
+ .catch(error => {
+   hideTypingIndicator();
+   addMessage('Oops! Something went wrong. Please try again!', 'assistant');
+ });
+});
+
+function addMessage(text, sender) {
+ const messagesContainer = document.getElementById('chat-messages');
+ const messageDiv = document.createElement('div');
+ messageDiv.className = `message ${sender}`;
+ messageDiv.style.animationDelay = `${messageCount * 0.1}s`;
+ 
+ const bubble = document.createElement('div');
+ bubble.className = 'message-bubble';
+ bubble.textContent = text;
+ 
+ messageDiv.appendChild(bubble);
+ messagesContainer.appendChild(messageDiv);
+ 
+ messageCount++;
+ 
+ // Smooth scroll to bottom
+ setTimeout(() => {
+   messagesContainer.scrollTop = messagesContainer.scrollHeight;
+ }, 100);
+ 
+ // Hide welcome message after first user message
+ const welcomeMsg = messagesContainer.querySelector('.welcome-message');
+ if (welcomeMsg && sender === 'user') {
+   setTimeout(() => {
+     welcomeMsg.style.opacity = '0';
+     setTimeout(() => welcomeMsg.style.display = 'none', 300);
+   }, 500);
+ }
+}
+
+function showTypingIndicator() {
+ document.getElementById('typing-indicator').classList.add('show');
+ document.getElementById('send-btn').disabled = true;
+ 
+ const messagesContainer = document.getElementById('chat-messages');
+ setTimeout(() => {
+   messagesContainer.scrollTop = messagesContainer.scrollHeight;
+ }, 100);
+}
+
+function hideTypingIndicator() {
+ document.getElementById('typing-indicator').classList.remove('show');
+ document.getElementById('send-btn').disabled = false;
+}
+
+// Auto-resize textarea
+document.getElementById('question-input').addEventListener('input', function() {
+ this.style.height = 'auto';
+ this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+// Send on Enter, new line on Shift+Enter
+document.getElementById('question-input').addEventListener('keydown', function(e) {
+ if (e.key === 'Enter' && !e.shiftKey) {
+   e.preventDefault();
+   document.getElementById('question-form').dispatchEvent(new Event('submit'));
+ }
+});
+
+// Focus input on page load
+document.addEventListener('DOMContentLoaded', function() {
+ document.getElementById('question-input').focus();
+});
+</script>
