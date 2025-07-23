@@ -267,6 +267,25 @@
     transform: translateY(-2px);
   }
 
+  .new-chat-btn {
+    background: rgba(102,126,234,0.08);
+    border: none;
+    color: #667eea;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 5px;
+  }
+
+  .new-chat-btn:hover {
+    background: #667eea;
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
   /* Subject-specific styling */
   .math-theme .chat-header { background: linear-gradient(135deg, #667eea, #764ba2); }
   .science-theme .chat-header { background: linear-gradient(135deg, #f093fb, #f5576c); }
@@ -381,6 +400,11 @@
   </div>
 
   <div class="chat-input-area">
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+      <button type="button" onclick="clearConversation()" class="new-chat-btn">
+        🗑️ New Chat
+      </button>
+    </div>
     <div class="quick-suggestions">
       <% config[:suggestions].each do |suggestion| %>
         <div class="suggestion-chip" onclick="askQuestion('<%= suggestion %>')"><%= suggestion %></div>
@@ -402,6 +426,34 @@
 
 <script>
 let messageCount = 0;
+
+function clearConversation() {
+  if (confirm('Start a new conversation? This will clear our chat history.')) {
+    // Clear the chat messages
+    const messagesContainer = document.getElementById('chat-messages');
+    messagesContainer.innerHTML = `
+      <div class="welcome-message">
+        <div class="welcome-avatar">🤖</div>
+        <div class="welcome-text">
+          Hi there! I'm your AI tutor and I'm super excited to help you learn! 
+          Ask me anything about <%= @subject.humanize %> and I'll explain it in a fun, easy way. 
+          What would you like to explore today?
+        </div>
+      </div>
+    `;
+    
+    // Reset message count
+    messageCount = 0;
+    
+    // Clear session on server side
+    fetch('/tutor/clear_session', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      }
+    });
+  }
+}
 
 function askQuestion(question) {
   document.getElementById('question-input').value = question;
@@ -428,7 +480,7 @@ function sendMessage() {
   showTypingIndicator();
   
   // Send to server
-  fetch('<%= tutor_ask_path %>', {
+  fetch(form.action, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -474,10 +526,12 @@ function addMessage(text, sender) {
   
   messageCount++;
   
+  // Smooth scroll to bottom
   setTimeout(() => {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }, 100);
   
+  // Hide welcome message after first user message
   const welcomeMsg = messagesContainer.querySelector('.welcome-message');
   if (welcomeMsg && sender === 'user') {
     setTimeout(() => {
@@ -502,11 +556,13 @@ function hideTypingIndicator() {
   document.getElementById('send-btn').disabled = false;
 }
 
+// Auto-resize textarea
 document.getElementById('question-input').addEventListener('input', function() {
   this.style.height = 'auto';
   this.style.height = Math.min(this.scrollHeight, 120) + 'px';
 });
 
+// Send on Enter, new line on Shift+Enter
 document.getElementById('question-input').addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -514,72 +570,8 @@ document.getElementById('question-input').addEventListener('keydown', function(e
   }
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('question-input').focus();
-});
-</script>
-
-function addMessage(text, sender) {
- const messagesContainer = document.getElementById('chat-messages');
- const messageDiv = document.createElement('div');
- messageDiv.className = `message ${sender}`;
- messageDiv.style.animationDelay = `${messageCount * 0.1}s`;
- 
- const bubble = document.createElement('div');
- bubble.className = 'message-bubble';
- bubble.textContent = text;
- 
- messageDiv.appendChild(bubble);
- messagesContainer.appendChild(messageDiv);
- 
- messageCount++;
- 
- // Smooth scroll to bottom
- setTimeout(() => {
-   messagesContainer.scrollTop = messagesContainer.scrollHeight;
- }, 100);
- 
- // Hide welcome message after first user message
- const welcomeMsg = messagesContainer.querySelector('.welcome-message');
- if (welcomeMsg && sender === 'user') {
-   setTimeout(() => {
-     welcomeMsg.style.opacity = '0';
-     setTimeout(() => welcomeMsg.style.display = 'none', 300);
-   }, 500);
- }
-}
-
-function showTypingIndicator() {
- document.getElementById('typing-indicator').classList.add('show');
- document.getElementById('send-btn').disabled = true;
- 
- const messagesContainer = document.getElementById('chat-messages');
- setTimeout(() => {
-   messagesContainer.scrollTop = messagesContainer.scrollHeight;
- }, 100);
-}
-
-function hideTypingIndicator() {
- document.getElementById('typing-indicator').classList.remove('show');
- document.getElementById('send-btn').disabled = false;
-}
-
-// Auto-resize textarea
-document.getElementById('question-input').addEventListener('input', function() {
- this.style.height = 'auto';
- this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-});
-
-// Send on Enter, new line on Shift+Enter
-document.getElementById('question-input').addEventListener('keydown', function(e) {
- if (e.key === 'Enter' && !e.shiftKey) {
-   e.preventDefault();
-   document.getElementById('question-form').dispatchEvent(new Event('submit'));
- }
-});
-
 // Focus input on page load
 document.addEventListener('DOMContentLoaded', function() {
- document.getElementById('question-input').focus();
+  document.getElementById('question-input').focus();
 });
 </script>
