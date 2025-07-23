@@ -19,6 +19,7 @@ gem "jbuilder"
 
 # Added for Tutoring App
 gem "httparty"
+gem "devise"
 gem 'dotenv-rails', groups: [:development, :test]
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]

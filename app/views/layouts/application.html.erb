@@ -22,7 +22,11 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+<body>
+    <!-- Add the navbar -->
+    <%= render 'shared/navbar' %>
+
+    <!-- Main content -->
     <%= yield %>
   </body>
 </html>

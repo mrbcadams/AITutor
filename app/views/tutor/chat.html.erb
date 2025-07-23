@@ -12,16 +12,20 @@
     padding: 20px;
   }
 
-  .chat-container {
+.chat-container {
     max-width: 900px;
     margin: 0 auto;
     background: white;
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    overflow: hidden;
-    height: 80vh;
+    overflow: visible;
+    min-height: 400px;
+    width: 100%;
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto;
+    margin-bottom: 40px;
+    margin-top: 100px;
   }
 
   .chat-header {
@@ -72,12 +76,19 @@
     text-decoration: none;
   }
 
-  .chat-messages {
-    flex: 1;
+.chat-messages {
+    width: 100%;
+    min-width: 0;
+    min-height: 200px;
+    align-self: stretch;
+    max-width: 100%;
+    box-sizing: border-box;
     padding: 30px;
-    overflow-y: auto;
     background: #f8f9fa;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    /* No max-height, no overflow-y: let chat expand with page */
   }
 
   .welcome-message {
@@ -123,12 +134,13 @@
     justify-content: flex-start;
   }
 
-  .message-bubble {
+.message-bubble {
     max-width: 70%;
     padding: 15px 20px;
     border-radius: 20px;
     position: relative;
     word-wrap: break-word;
+    overflow-wrap: break-word;
     line-height: 1.5;
   }
 
@@ -330,11 +342,15 @@
   }
 
   @media (max-width: 768px) {
-    .chat-container {
-      height: 90vh;
+   .chat-container {
+      min-height: 300px; 
+      max-height: 90vh;
       margin: 10px;
       border-radius: 15px;
+      margin-bottom: 20px;
+      overflow: auto;
     }
+  }
     
     .chat-header {
       padding: 15px 20px;
@@ -376,6 +392,8 @@
     </div>
     <%= link_to "← Back to Subjects", root_path, class: "back-btn" %>
   </div>
+
+
 
   <div class="chat-messages" id="chat-messages">
     <div class="welcome-message">
@@ -425,11 +443,15 @@
 </div>
 
 <script>
-let messageCount = 0;
+
+// Use window-scoped variable to avoid redeclaration on Turbo navigation
+if (window.messageCount === undefined) {
+  window.messageCount = 0;
+}
 
 function clearConversation() {
   if (confirm('Start a new conversation? This will clear our chat history.')) {
-    // Clear the chat messages
+    // Clear the chat messages, but do NOT remove typing-indicator
     const messagesContainer = document.getElementById('chat-messages');
     messagesContainer.innerHTML = `
       <div class="welcome-message">
@@ -441,10 +463,8 @@ function clearConversation() {
         </div>
       </div>
     `;
-    
     // Reset message count
     messageCount = 0;
-    
     // Clear session on server side
     fetch('/tutor/clear_session', {
       method: 'POST',
@@ -506,9 +526,18 @@ function sendMessage() {
 }
 
 // Updated event listener to fix failing form submission
-document.getElementById('question-form').addEventListener('submit', function(e) {
-  e.preventDefault();
-  sendMessage();
+
+// Attach form event listener after Turbo navigation or DOM load
+document.addEventListener('turbo:load', function() {
+  const form = document.getElementById('question-form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      sendMessage();
+    });
+  }
+  const input = document.getElementById('question-input');
+  if (input) input.focus();
 });
 
 function addMessage(text, sender) {
@@ -526,10 +555,7 @@ function addMessage(text, sender) {
   
   messageCount++;
   
-  // Smooth scroll to bottom
-  setTimeout(() => {
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  }, 100);
+
   
   // Hide welcome message after first user message
   const welcomeMsg = messagesContainer.querySelector('.welcome-message');
@@ -545,10 +571,6 @@ function showTypingIndicator() {
   document.getElementById('typing-indicator').classList.add('show');
   document.getElementById('send-btn').disabled = true;
   
-  const messagesContainer = document.getElementById('chat-messages');
-  setTimeout(() => {
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  }, 100);
 }
 
 function hideTypingIndicator() {

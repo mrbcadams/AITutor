@@ -1,0 +1,357 @@
+<style>
+  /* Reset any conflicting styles */
+  .navbar * {
+    box-sizing: border-box;
+  }
+
+  .navbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 15px 20px 15px 20px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    width: 100%;
+  }
+
+  .navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+  }
+
+  .navbar-brand:hover {
+    color: white;
+    text-decoration: none;
+    transform: scale(1.05);
+  }
+
+  .navbar-brand .brand-icon {
+    font-size: 2rem;
+    animation: navPulse 2s infinite;
+  }
+
+  .navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-item {
+    position: relative;
+  }
+
+  .nav-link {
+    color: rgba(255,255,255,0.9);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: block;
+  }
+
+  .nav-link:hover {
+    color: white;
+    text-decoration: none;
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+
+  .nav-link.active {
+    background: rgba(255,255,255,0.2);
+    color: white;
+  }
+
+  .btn-primary-nav {
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    display: inline-block;
+  }
+
+  .btn-primary-nav:hover {
+    background: white;
+    color: #667eea;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255,255,255,0.3);
+  }
+
+  .btn-secondary-nav {
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+  }
+
+  .btn-secondary-nav:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+  }
+
+  .user-menu {
+    position: relative;
+    display: inline-block;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+
+  .user-avatar:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.1);
+  }
+
+  .navbar-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    min-width: 200px;
+    padding: 10px 0;
+    margin-top: 10px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1001;
+  }
+
+  .navbar-dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .navbar-dropdown-item {
+    display: block;
+    padding: 12px 20px;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .navbar-dropdown-item:hover {
+    background: #f8f9fa;
+    color: #667eea;
+    text-decoration: none;
+  }
+
+  .navbar-dropdown-divider {
+    height: 1px;
+    background: #eee;
+    margin: 5px 0;
+  }
+
+  .mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+  }
+
+  /* Add top padding to body to account for fixed navbar */
+  body {
+    padding-top: 80px;
+  }
+
+  @keyframes navPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  @media (max-width: 768px) {
+    .navbar-nav {
+      position: fixed;
+      top: 70px;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      flex-direction: column;
+      padding: 20px;
+      gap: 15px;
+      transform: translateY(-100%);
+      opacity: 0;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      z-index: 999;
+    }
+
+    .navbar-nav.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .mobile-menu-toggle {
+      display: block;
+    }
+
+    .nav-link, .btn-primary-nav, .btn-secondary-nav {
+      display: block;
+      text-align: center;
+      width: 100%;
+    }
+
+    .user-menu .navbar-dropdown-menu {
+      position: fixed;
+      right: 20px;
+      left: auto;
+    }
+  }
+</style>
+
+<nav class="navbar">
+  <div class="navbar-container">
+    <%= link_to root_path, class: "navbar-brand" do %>
+      <span class="brand-icon">🚀</span>
+      <span>AI Tutor</span>
+    <% end %>
+
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+    </button>
+    <ul class="navbar-nav" id="navbar-nav">
+      <li class="nav-item">
+        <%= link_to "Home", root_path, class: "nav-link #{'active' if current_page?(root_path)}" %>
+      </li>
+
+      <% if user_signed_in? %>
+        <li class="nav-item">
+          <%= link_to "My Learning", root_path, class: "nav-link" %>
+        </li>
+        
+        <li class="nav-item user-menu">
+          <div class="user-avatar" id="user-menu-toggle">
+            <%= current_user.email.first.upcase %>
+          </div>
+          <div class="navbar-dropdown-menu" id="user-dropdown">
+            <div class="navbar-dropdown-item" style="font-weight: 600; color: #667eea;">
+              <%= current_user.email %>
+            </div>
+            <div class="navbar-dropdown-divider"></div>
+            <%= link_to "Profile", edit_user_registration_path, class: "navbar-dropdown-item" %>
+            <%= link_to "Settings", edit_user_registration_path, class: "navbar-dropdown-item" %>
+            <div class="navbar-dropdown-divider"></div>
+            <%= link_to "Sign Out", destroy_user_session_path, 
+                method: :delete, 
+                data: { turbo_method: :delete },
+                class: "navbar-dropdown-item" %>
+          </div>
+        </li>
+      <% else %>
+        <li class="nav-item">
+          <%= link_to "Sign In", new_user_session_path, class: "nav-link" %>
+        </li>
+        <li class="nav-item">
+          <%= link_to "Sign Up", new_user_registration_path, class: "btn-primary-nav" %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+    <!-- Flash messages (for Devise) -->
+    <% if notice %>
+      <div style="background: #d4edda; color: #155724; padding: 15px; text-align: center; border-bottom: 1px solid #c3e6cb;">
+        <%= notice %>
+      </div>
+    <% end %>
+    
+    <% if alert %>
+      <div style="background: #f8d7da; color: #721c24; padding: 15px; text-align: center; border-bottom: 1px solid #f5c6cb;">
+        <%= alert %>
+      </div>
+    <% end %>
+
+
+</nav>
+
+<script>
+  // Mobile menu toggle
+  document.getElementById('mobile-menu-toggle')?.addEventListener('click', function() {
+    const navbarNav = document.getElementById('navbar-nav');
+    navbarNav.classList.toggle('show');
+  });
+
+  // User dropdown toggle
+  document.getElementById('user-menu-toggle')?.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const dropdown = document.getElementById('user-dropdown');
+    dropdown.classList.toggle('show');
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('user-dropdown');
+    const userMenu = document.querySelector('.user-menu');
+    
+    if (dropdown && !userMenu?.contains(e.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+
+  // Close mobile menu when clicking nav links
+  document.querySelectorAll('.nav-link, .btn-primary-nav, .btn-secondary-nav').forEach(link => {
+    link.addEventListener('click', () => {
+      document.getElementById('navbar-nav').classList.remove('show');
+    });
+  });
+</script>
