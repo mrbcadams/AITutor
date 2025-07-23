@@ -405,16 +405,18 @@ let messageCount = 0;
 
 function askQuestion(question) {
   document.getElementById('question-input').value = question;
-  document.getElementById('question-form').dispatchEvent(new Event('submit'));
+  sendMessage(); // Direct function call instead of event dispatch
 }
 
-document.getElementById('question-form').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  const formData = new FormData(this);
+function sendMessage() {
+  const form = document.getElementById('question-form');
+  const formData = new FormData(form);
   const question = formData.get('question');
   
-  if (!question.trim()) return;
+  if (!question || !question.trim()) {
+    alert('Please enter a question!');
+    return;
+  }
   
   // Add user message with animation
   addMessage(question, 'user');
@@ -424,29 +426,98 @@ document.getElementById('question-form').addEventListener('submit', function(e) 
   
   // Show typing indicator
   showTypingIndicator();
-
+  
   // Send to server
- fetch('<%= tutor_ask_path %>', {
-   method: 'POST',
-   headers: {
-     'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-   },
-   body: formData
- })
- .then(response => response.json())
- .then(data => {
-   hideTypingIndicator();
-   if (data.success) {
-     addMessage(data.response, 'assistant');
-   } else {
-     addMessage('Sorry, I had trouble understanding that. Could you try asking again?', 'assistant');
-   }
- })
- .catch(error => {
-   hideTypingIndicator();
-   addMessage('Oops! Something went wrong. Please try again!', 'assistant');
- });
+  fetch('<%= tutor_ask_path %>', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    },
+    body: new URLSearchParams(formData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    hideTypingIndicator();
+    if (data.success) {
+      addMessage(data.response, 'assistant');
+    } else {
+      addMessage('Sorry, I had trouble understanding that. Could you try asking again?', 'assistant');
+      console.error('API Error:', data.error);
+    }
+  })
+  .catch(error => {
+    hideTypingIndicator();
+    addMessage('Oops! Something went wrong. Please try again!', 'assistant');
+    console.error('Network Error:', error);
+  });
+}
+
+// Updated event listener
+document.getElementById('question-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  sendMessage();
 });
+
+function addMessage(text, sender) {
+  const messagesContainer = document.getElementById('chat-messages');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${sender}`;
+  messageDiv.style.animationDelay = `${messageCount * 0.1}s`;
+  
+  const bubble = document.createElement('div');
+  bubble.className = 'message-bubble';
+  bubble.textContent = text;
+  
+  messageDiv.appendChild(bubble);
+  messagesContainer.appendChild(messageDiv);
+  
+  messageCount++;
+  
+  setTimeout(() => {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }, 100);
+  
+  const welcomeMsg = messagesContainer.querySelector('.welcome-message');
+  if (welcomeMsg && sender === 'user') {
+    setTimeout(() => {
+      welcomeMsg.style.opacity = '0';
+      setTimeout(() => welcomeMsg.style.display = 'none', 300);
+    }, 500);
+  }
+}
+
+function showTypingIndicator() {
+  document.getElementById('typing-indicator').classList.add('show');
+  document.getElementById('send-btn').disabled = true;
+  
+  const messagesContainer = document.getElementById('chat-messages');
+  setTimeout(() => {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }, 100);
+}
+
+function hideTypingIndicator() {
+  document.getElementById('typing-indicator').classList.remove('show');
+  document.getElementById('send-btn').disabled = false;
+}
+
+document.getElementById('question-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+document.getElementById('question-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('question-input').focus();
+});
+</script>
 
 function addMessage(text, sender) {
  const messagesContainer = document.getElementById('chat-messages');
