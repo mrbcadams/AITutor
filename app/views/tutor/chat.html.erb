@@ -453,7 +453,7 @@ function sendMessage() {
   });
 }
 
-// Updated event listener
+// Updated event listener to fix failing form submission
 document.getElementById('question-form').addEventListener('submit', function(e) {
   e.preventDefault();
   sendMessage();
