@@ -303,16 +303,22 @@
   .science-theme .chat-header { background: linear-gradient(135deg, #f093fb, #f5576c); }
   .english-theme .chat-header { background: linear-gradient(135deg, #4facfe, #00f2fe); }
   .social-studies-theme .chat-header { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+  .how-to-study-theme .chat-header { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+  .reading-theme .chat-header { background: linear-gradient(135deg, #ffecd2, #fcb69f); }
 
   .math-theme .message.user .message-bubble { background: linear-gradient(135deg, #667eea, #764ba2); }
   .science-theme .message.user .message-bubble { background: linear-gradient(135deg, #f093fb, #f5576c); }
   .english-theme .message.user .message-bubble { background: linear-gradient(135deg, #4facfe, #00f2fe); }
   .social-studies-theme .message.user .message-bubble { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+  .how-to-study-theme .message.user .message-bubble { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+  .reading-theme .message.user .message-bubble { background: linear-gradient(135deg, #ffecd2, #fcb69f); }
 
   .math-theme .send-btn { background: linear-gradient(135deg, #667eea, #764ba2); }
   .science-theme .send-btn { background: linear-gradient(135deg, #f093fb, #f5576c); }
   .english-theme .send-btn { background: linear-gradient(135deg, #4facfe, #00f2fe); }
   .social-studies-theme .send-btn { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+  .how-to-study-theme .send-btn { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+  .reading-theme .send-btn { background: linear-gradient(135deg, #ffecd2, #fcb69f); }
 
   @keyframes bounce {
     0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
@@ -375,7 +381,9 @@
     'math' => { icon: '🔢', title: 'Math Wizard', subtitle: 'Ready to solve some math mysteries?', theme: 'math-theme', suggestions: ['What are fractions?', 'How do I add numbers?', 'What is algebra?'] },
     'science' => { icon: '🔬', title: 'Science Explorer', subtitle: 'Let\'s discover how the world works!', theme: 'science-theme', suggestions: ['Why is the sky blue?', 'How do plants grow?', 'What is gravity?'] },
     'english' => { icon: '📝', title: 'Word Artist', subtitle: 'Time to master the art of language!', theme: 'english-theme', suggestions: ['What is a metaphor?', 'How do I write better?', 'What are adjectives?'] },
-    'social_studies' => { icon: '🌍', title: 'World Adventurer', subtitle: 'Let\'s explore history and cultures!', theme: 'social-studies-theme', suggestions: ['What is democracy?', 'Tell me about ancient Egypt', 'How do governments work?'] }
+    'social_studies' => { icon: '🌍', title: 'World Adventurer', subtitle: 'Let\'s explore history and cultures!', theme: 'social-studies-theme', suggestions: ['What is democracy?', 'Tell me about ancient Egypt', 'How do governments work?'] },
+    'how_to_study' => { icon: '🔍', title: 'Study Buddy', subtitle: 'Your partner in learning!', theme: 'how-to-study-theme', suggestions: ['How do I study effectively?', 'What are good study habits?', 'How can I remember better?'] },
+    'reading' => { icon: '📖', title: 'Reading Guide', subtitle: 'Build reading comprehension and analytical skills through engaging texts.', theme: 'reading-theme', suggestions: ['How to understand the main idea of a story', 'What are the different types of texts?', 'How can I improve my reading speed?'] }
   }
   
   config = subject_config[@subject] || subject_config['math']

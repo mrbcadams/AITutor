@@ -130,6 +130,8 @@ body {
 .science-card::before { background: linear-gradient(135deg, #f093fb, #f5576c); }
 .english-card::before { background: linear-gradient(135deg, #4facfe, #00f2fe); }
 .social-studies-card::before { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+.how-to-study-card::before { background: linear-gradient(135deg, #f9d423, #ff4e50); }
+.reading-card::before { background: linear-gradient(135deg, #01377D, #009DD1); }
 
 .card-icon {
   font-size: 4rem;
@@ -167,6 +169,8 @@ body {
 .science-card .card-title { color: #f5576c; }
 .english-card .card-title { color: #4facfe; }
 .social-studies-card .card-title { color: #43e97b; }
+.how-to-study-card .card-title{ color: #f9d423;}
+.reading-card .card-title { color: #01377D; }
 
 .floating-elements {
   position: fixed;

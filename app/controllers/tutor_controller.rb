@@ -1,11 +1,12 @@
 class TutorController < ApplicationController
-  require 'net/http'
-  require 'json'
+  require "net/http"
+  require "json"
 
-  skip_before_action :verify_authenticity_token, only: [:ask]
+  before_action :authenticate_user!
+  skip_before_action :verify_authenticity_token, only: [ :ask ]
 
   def chat
-    @subject = params[:subject] || 'general'
+    @subject = params[:subject] || "general"
   end
 
   def ask
@@ -40,6 +41,11 @@ class TutorController < ApplicationController
     end
   end
 
+  def clear_session
+    session[:tutor_session_id] = nil
+    render json: { success: true }
+  end
+
   # Enhanced version for debugging API issues
   def get_claude_response_with_debug(question, subject)
     conversation_history = get_conversation_history(subject)
@@ -47,10 +53,9 @@ class TutorController < ApplicationController
     system_prompt = build_system_prompt(subject)
     claude_response, debug_info = call_claude_api_with_context_debug(messages, system_prompt)
     if claude_response && !claude_response.empty?
-      return [claude_response, debug_info]
+      return [ claude_response, debug_info ]
     end
-    ["I'm having trouble connecting to my AI brain right now. Please try asking your question again in a moment!", debug_info]
-  end
+    [ "I'm having trouble connecting to my AI brain right now. Please try asking your question again in a moment!", debug_info ]
   end
 
   private
@@ -126,16 +131,16 @@ Remember: You're having an ongoing conversation with a curious 6th grader, so ma
 
   def call_claude_api_with_context_debug(messages, system_prompt = nil)
     begin
-      uri = URI('https://api.anthropic.com/v1/messages')
+      uri = URI("https://api.anthropic.com/v1/messages")
 
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       http.read_timeout = 30
 
       request = Net::HTTP::Post.new(uri)
-      request['Content-Type'] = 'application/json'
-      request['x-api-key'] = ENV['ANTHROPIC_API_KEY']
-      request['anthropic-version'] = '2023-06-01'
+      request["Content-Type"] = "application/json"
+      request["x-api-key"] = ENV["ANTHROPIC_API_KEY"]
+      request["anthropic-version"] = "2023-06-01"
 
       # Add system prompt as top-level parameter
       body = {
@@ -159,57 +164,57 @@ Remember: You're having an ongoing conversation with a curious 6th grader, so ma
         headers: request.to_hash
       }
 
-      if response.code == '200'
+      if response.code == "200"
         begin
           data = JSON.parse(response.body)
           claude_text = data.dig("content", 0, "text")
 
           if claude_text && !claude_text.empty?
             Rails.logger.info "SUCCESS: Got contextual Claude response"
-            return [claude_text, debug_info]
+            [ claude_text, debug_info ]
           else
             Rails.logger.error "ERROR: Claude response was empty"
             debug_info[:error] = "Claude response was empty"
-            return [nil, debug_info]
+            [ nil, debug_info ]
           end
 
         rescue JSON::ParserError => e
           Rails.logger.error "JSON Parse Error: #{e.message}"
           debug_info[:error] = "JSON Parse Error: #{e.message}"
-          return [nil, debug_info]
+          [ nil, debug_info ]
         end
       else
         Rails.logger.error "API Error #{response.code}: #{response.body}"
         debug_info[:error] = "API Error #{response.code}: #{response.body}"
-        return [nil, debug_info]
+        [ nil, debug_info ]
       end
 
     rescue => e
       Rails.logger.error "API Exception: #{e.class} - #{e.message}"
-      return [nil, { error: "API Exception: #{e.class} - #{e.message}" }]
+      [ nil, { error: "API Exception: #{e.class} - #{e.message}" } ]
     end
   end
 
   def call_claude_api(prompt)
     begin
-      uri = URI('https://api.anthropic.com/v1/messages')
+      uri = URI("https://api.anthropic.com/v1/messages")
 
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       http.read_timeout = 30
 
       request = Net::HTTP::Post.new(uri)
-      request['Content-Type'] = 'application/json'
-      request['x-api-key'] = ENV['ANTHROPIC_API_KEY']
-      request['anthropic-version'] = '2023-06-01'
+      request["Content-Type"] = "application/json"
+      request["x-api-key"] = ENV["ANTHROPIC_API_KEY"]
+      request["anthropic-version"] = "2023-06-01"
 
       body = {
         model: "claude-3-5-sonnet-20241022",
         max_tokens: 1000,
-        messages: [{
+        messages: [ {
           role: "user",
           content: prompt
-        }]
+        } ]
       }
 
       request.body = body.to_json
@@ -219,31 +224,31 @@ Remember: You're having an ongoing conversation with a curious 6th grader, so ma
       Rails.logger.info "Claude API Status: #{response.code}"
       Rails.logger.info "Claude API Response: #{response.body[0..300]}..."
 
-      if response.code == '200'
+      if response.code == "200"
         begin
           data = JSON.parse(response.body)
           claude_text = data.dig("content", 0, "text")
 
           if claude_text && !claude_text.empty?
             Rails.logger.info "SUCCESS: Got Claude response of #{claude_text.length} characters"
-            return claude_text
+            claude_text
           else
             Rails.logger.error "ERROR: Claude response was empty or malformed"
-            return nil
+            nil
           end
 
         rescue JSON::ParserError => e
           Rails.logger.error "JSON Parse Error: #{e.message}"
-          return nil
+          nil
         end
       else
         Rails.logger.error "API Error #{response.code}: #{response.body}"
-        return nil
+        nil
       end
 
     rescue => e
       Rails.logger.error "API Exception: #{e.class} - #{e.message}"
-      return nil
+      nil
     end
   end
 
@@ -263,3 +268,4 @@ Please provide a helpful, educational response following these guidelines:
 
 Remember: You're helping a curious 6th grader learn, so make it fun and accessible!"
   end
+end

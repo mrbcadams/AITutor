@@ -41,5 +41,20 @@
       <p class="card-description">Explore history, geography, cultures, and governments around the globe.</p>
       <p class="card-tagline">Journey through time and space!</p>
     <% end %>
+
+    <%= link_to tutor_chat_path(subject: 'how_to_study'), class: "subject-card how-to-study-card" do %>
+      <span class="card-icon">🔍</span>
+      <h3 class="card-title">Study Buddy</h3>
+      <p class="card-description">Learn how to study effectively and develop good habits.</p>
+      <p class="card-tagline">Your partner in learning!</p>
+    <% end %>
+
+    <%= link_to tutor_chat_path(subject: 'reading'), class: "subject-card reading-card" do %>
+      <span class="card-icon">📖</span>
+      <h3 class="card-title">Reading Guide</h3>
+      <p class="card-description">Build reading comprehension and analytical skills through engaging texts.</p>
+      <p class="card-tagline">Examine the world through the great stories!</p>
+    <% end %>
+
   </div>
 </div>
